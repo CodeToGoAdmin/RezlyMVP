@@ -1,0 +1,404 @@
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+  background-color: #fff !important;
+  border-color: #eee !important;
+}
+
+.fc-theme-standard .fc-scroller {
+  overflow: hidden !important;
+}
+
+.grid-cols-\[50px_1fr\]>div:first-child {
+  background-color: #fff;
+}
+
+.grid-cols-\[50px_1fr\]>div:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+}
+
+.fc .fc-timegrid-axis {
+  border: none !important;
+  background: transparent !important;
+  text-align: right;
+  padding-right: 8px;
+}
+
+.fc .fc-timegrid-axis .fc-scrollgrid-section-liquid,
+.fc .fc-timegrid-axis .fc-timegrid-slot-frame,
+.fc .fc-timegrid-axis .fc-scrollgrid-section>* {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.fc-direction-rtl .fc-timegrid-slot-label {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.fc .fc-timegrid-slot-label-frame {
+  background: transparent !important;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: 0px;
+  height: 100%;
+  box-sizing: border-box;
+
+}
+
+.fc .fc-timegrid-slot-label {
+  font-weight: 600;
+  color: #374151;
+  margin-top: 0 !important;
+  padding: 0 !important;
+  line-height: 1;
+  /* عشان رقم الساعة يبين فوق عند بداية كل صف */
+}
+
+.fc .fc-timegrid-slot {
+  height: 30px !important;
+  position: relative;
+    border-bottom: 1px solid #E5E7EB; /* الخط الفاصل بين النص نصف ساعة */
+
+}
+
+
+.fc .fc-timegrid-event,
+.fc .fc-event {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  position: relative;
+  z-index: 1 !important;
+  margin: 12px;
+  overflow: visible !important;
+}
+
+/* ✅ تنعيم شكل الإيفنتات في عرض الأسبوع فقط */
+.fc-timeGridWeek-view .fc-timegrid-event-harness {
+  padding: 0 2px !important; /* يقلل الفراغ الجانبي جوّا الكولوم */
+}
+
+.fc-timeGridWeek-view .fc-timegrid-event {
+  margin: 2px 0 !important;   /* بدل 12px الكبيرة → بتخليهم أقل تزاحم */
+  width: 100% !important; 
+  overflow: hidden !important; 
+}
+
+
+.fc .fc-scroller-liquid-absolute {
+  min-height: 0 !important;
+}
+
+/*
+.fc-col-header {
+  display: none !important;
+}
+*/
+/* نخفي هيدر الأيام فقط لما نحط كلاس hide-fc-header على الكونتينر */
+.hide-fc-header .fc-col-header {
+  display: none !important;
+}
+
+/* الغاء الحد الأيمن لكل الأعمدة الأخيرة في FullCalendar */
+.fc-theme-standard .fc-scrollgrid-section>*:last-child {
+  border-right: none !important;
+}
+
+.fc-theme-standard .fc-daygrid-day:last-child {
+  border-right: none !important;
+}
+
+.fc-theme-standard .fc-timegrid-col:last-child {
+  border-right: none !important;
+}
+
+/* نتحكم بالحدث نفسه */
+.fc-timegrid-event {
+  width: 138px !important;
+  display: block !important;
+  /* عشان يقدر يمتد إذا الحدث أكثر من ساعة */
+  overflow: visible !important;
+  border-radius: 6px;
+  /*margin: 0 12px;*/
+  margin: 4px 8px !important; /* أصغر من 12px عشان لما نضيف حدث نص ساعة يبين منيح ما يطلع صغير*/
+  position: absolute !important;
+}
+
+
+
+/* الغاء أي سكرول داخل FullCalendar */
+.fc .fc-scroller {
+  overflow: hidden !important;
+}
+
+.fc .fc-scroller-liquid-absolute {
+  overflow: hidden !important;
+}
+
+.fc-timegrid-slots {
+  overflow: hidden !important;
+}
+
+/* إزالة الخط أو الحدود من العمود الفارغ فوق الساعات */
+.fc .fc-timegrid-axis .fc-scrollgrid-section> :first-child {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+
+/* إلغاء الحد العلوي عاليمين فوق الساعات */
+/* إزالة أي حد أو خط في بداية الكاليندر تحت الديف العلوي 
+
+.fc .fc-scrollgrid {
+  border-top: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+*/
+
+.fc-timegrid-body {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  white-space: nowrap !important;
+}
+
+.fc-timegrid-cols {
+  display: inline-flex !important;
+  min-width: max-content !important;
+}
+.save-btn{
+  background-color: var(--color-purple);
+}
+
+/* إلغاء الحد الأيسر الخارجي */
+.fc-theme-standard .fc-scrollgrid {
+  border-left: none !important;
+}
+
+/* تنسيق هيدر الأسبوع في FullCalendar */
+.fc-timeGridWeek-view .fc-col-header-cell {
+  padding: 6px 0 !important;
+}
+
+/* اسم اليوم */
+.fc-timeGridWeek-view .fc-col-header-cell .fc-col-header-cell-cushion {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #555 !important; /* رمادي ناعم */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* التاريخ تحت اسم اليوم */
+.fc-timeGridWeek-view .fc-col-header-cell .fc-col-header-cell-cushion span {
+  font-size: 11px !important;
+  color: #777 !important;
+  margin-top: 2px;
+}
+
+/* اليوم الحالي تمييز بسيط */
+.fc-timeGridWeek-view .fc-col-header-cell.fc-day-today .fc-col-header-cell-cushion {
+  color: #000 !important; 
+  font-weight: 700 !important;
+}
+
+.fc-timeGridWeek-view .fc-col-header-cell.fc-day-today span {
+  color: #000 !important;
+  font-weight: 700 !important;
+}
+
+
+/* ✅ وضع الفل سكرين داخل الداشبورد: يكبر على مستوى صفحة الهوم بدون ما يغطي التوب بار والسايد بار */
+.calendar-fullscreen {
+  position: fixed;
+  z-index: 50;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border-radius: 16px;
+  /* يغطي مساحة المحتوى فقط */
+  inset-block-end: 16px;   /* من تحت */
+  inset-inline-end: 16px;  /* من الجهة الثانية */
+  inset-block-start: 85px; /* يبدأ تحت التوب بار تقريباً (عدليها لو حبيتي) */
+  inset-inline-start: 0;
+
+  overflow-y: auto;
+}
+
+/* 🖥️ على الشاشات الكبيرة: اترك مساحة للسيدبار (22% أو 280px كحد أقصى) */
+@media (min-width: 1024px) {
+  .calendar-fullscreen {
+    right: calc(270px + 16px);
+  }
+}
+
+
+/* ✅ جوّا الفل سكرين: نفعل السكرول لكل أجزاء التايم جريد */
+.calendar-fullscreen .fc-theme-standard .fc-scroller,
+.calendar-fullscreen .fc .fc-scroller,
+.calendar-fullscreen .fc-timegrid-slots,
+.calendar-fullscreen .fc-timegrid-body {
+  overflow-y: auto !important;
+}
+
+
+/* نترك السكرول الأفقي كما هو لو محتاجينه */
+.calendar-fullscreen .fc-timegrid-body {
+  overflow-x: auto !important;
+}
+
+/* الحاوية الأساسية */
+.calendar-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* وضع التوسيع داخل اللي أوت */
+.calendar-expanded {
+  height: calc(100vh - 120px); /* بدون ما يغطي التوب بار */
+  overflow: hidden; 
+}
+
+/* تفعيل السكرول داخل الكاليندر */
+.calendar-expanded .fc-scroller,
+.calendar-expanded .fc-timegrid-body,
+.calendar-expanded .fc-timegrid-slots {
+  overflow-y: auto !important;
+  max-height: calc(100vh - 200px); /* يضبط حسب الهيدر */
+}
+
+
+/* -------------------------------------- */
+/* 🔥 ستايل السكرول في وضع الفل سكرين */
+/* -------------------------------------- */
+
+.calendar-fullscreen,
+.calendar-fullscreen .fc-scroller,
+.calendar-fullscreen .fc-theme-standard .fc-scroller,
+.calendar-fullscreen .fc-timegrid-body,
+.calendar-fullscreen .fc-timegrid-slots,
+.calendar-fullscreen .fc-daygrid-body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(106, 14, 173, 0.45) transparent;
+}
+
+.calendar-fullscreen::-webkit-scrollbar,
+.calendar-fullscreen .fc-scroller::-webkit-scrollbar,
+.calendar-fullscreen .fc-theme-standard .fc-scroller::-webkit-scrollbar,
+.calendar-fullscreen .fc-timegrid-body::-webkit-scrollbar,
+.calendar-fullscreen .fc-timegrid-slots::-webkit-scrollbar,
+.calendar-fullscreen .fc-daygrid-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.calendar-fullscreen::-webkit-scrollbar-thumb,
+.calendar-fullscreen .fc-scroller::-webkit-scrollbar-thumb,
+.calendar-fullscreen .fc-theme-standard .fc-scroller::-webkit-scrollbar-thumb,
+.calendar-fullscreen .fc-timegrid-body::-webkit-scrollbar-thumb,
+.calendar-fullscreen .fc-timegrid-slots::-webkit-scrollbar-thumb,
+.calendar-fullscreen .fc-daygrid-body::-webkit-scrollbar-thumb {
+  background-color: rgba(106, 14, 173, 0.45);
+  border-radius: 4px;
+}
+
+.calendar-fullscreen::-webkit-scrollbar-track,
+.calendar-fullscreen .fc-scroller::-webkit-scrollbar-track,
+.calendar-fullscreen .fc-theme-standard .fc-scroller::-webkit-scrollbar-track,
+.calendar-fullscreen .fc-timegrid-body::-webkit-scrollbar-track,
+.calendar-fullscreen .fc-timegrid-slots::-webkit-scrollbar-track,
+.calendar-fullscreen .fc-daygrid-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ✅ إتاحة السكرول داخل البوب أب اللي بطلع لما نكبس على + */
+.fc-popover .fc-scroller,
+.fc-popover .fc-scroller-liquid-absolute {
+  overflow-y: auto !important;
+  max-height: 600px; /* تقدري تكبريها شوي لو حبيتي مثلا 320 أو 400 */
+}
+
+/* ✅ استثناء خاص للبوب أب تبع علامة + في FullCalendar */
+.fc-more-popover,
+.fc-popover {
+  max-height: 320px; /* ارتفاع عام للبوب أب */
+}
+
+/* جسم البوب أب نفسه يكون فيه سكروول لو الإيفنتات كثار */
+.fc-more-popover .fc-popover-body,
+.fc-popover .fc-popover-body {
+  max-height: 280px;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
+/* لو البوب أب مستعمل scroller داخلي، نرجع نسمحله بالسكروول */
+.fc-more-popover .fc-scroller,
+.fc-more-popover .fc-scroller-liquid-absolute,
+.fc-popover .fc-scroller,
+.fc-popover .fc-scroller-liquid-absolute {
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
+/* ✅ تنسيق خاص للأحداث داخل البوب أب (+) عشان ما يطلعوا برا */
+.fc-more-popover .fc-event {
+  width: 180px !important;
+  margin: 4px 6px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  max-height: none !important;
+  white-space: normal !important; /* يخلي العنوان يلف عادي */
+}
+
+/* ✅ تقليل عرض البوب أب تبع + */
+.fc-more-popover,
+.fc-popover {
+  width: 225px !important;   /* تقدري تعمليها 240 / 220 لو بدك أنحف */
+  min-width: 180px !important;
+}
+
+
+
+/* ✅ سكرول خاص للبوب أب فقط */
+.fc-more-popover .fc-popover-body,
+.fc-popover .fc-popover-body,
+.fc-more-popover .fc-scroller,
+.fc-popover .fc-scroller {
+  scrollbar-width: thin; 
+  scrollbar-color: rgba(106, 14, 173, 0.45) transparent;
+}
+
+/* للكروم */
+.fc-more-popover .fc-popover-body::-webkit-scrollbar,
+.fc-popover .fc-popover-body::-webkit-scrollbar,
+.fc-more-popover .fc-scroller::-webkit-scrollbar,
+.fc-popover .fc-scroller::-webkit-scrollbar {
+  width: 6px;
+}
+
+.fc-more-popover .fc-popover-body::-webkit-scrollbar-thumb,
+.fc-popover .fc-popover-body::-webkit-scrollbar-thumb,
+.fc-more-popover .fc-scroller::-webkit-scrollbar-thumb,
+.fc-popover .fc-scroller::-webkit-scrollbar-thumb {
+  background: rgba(106, 14, 173, 0.45);
+  border-radius: 20px;
+}
+
+.fc-more-popover .fc-popover-body::-webkit-scrollbar-track,
+.fc-popover .fc-popover-body::-webkit-scrollbar-track,
+.fc-more-popover .fc-scroller::-webkit-scrollbar-track,
+.fc-popover .fc-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
