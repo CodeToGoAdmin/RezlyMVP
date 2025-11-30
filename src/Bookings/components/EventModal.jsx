@@ -15,7 +15,7 @@ import MembersIcon from "../../icons/members.svg?react";
 import AddCircleIcon from "../../icons/addcircle.svg?react";
 import SearchIcon from "../../icons/search.svg?react";
 import MiniCalender from "../../components/MiniCalender/MiniCalender";
-import DeleteIcon from "../../icons/Delete.svg?react";
+import DeleteIcon from "../../icons/delete.svg?react";
 import CloseIcon from "../../icons/close.svg";
 import AddressIcon from "../../icons/address.svg?react";
 import DiscIcon from "../../icons/disc.svg?react";
