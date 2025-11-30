@@ -20,9 +20,9 @@ import Icon6 from "../assets/icon/card-icon6.svg";
 import Icon7 from "../assets/icon/card-icon7.svg";
 import Icon8 from "../assets/icon/card-icon8.svg";
 import Icon9 from "../assets/icon/card-icon9.svg";
-import User1 from "../img/User1.svg";
-import User2 from "../img/User2.svg";
-import User3 from "../img/User3.svg";
+import User1 from "../img/user1.svg";
+import User2 from "../img/user2.svg";
+import User3 from "../img/user3.svg";
 
 const needsFollowUp = [
   { id: 1, name: "خالد السالم", reason: "تغيب يومين", image: User1 },
