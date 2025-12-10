@@ -2,29 +2,29 @@ import React from "react";
 import User1 from "../img/User1.svg";
 
 export default function MembersNotes() {
-  const notes = [
-    {
-      name: "أحمد محمد",
-      date: "2025-11-2",
-      note: "يتأخر دائماً" ,
-      color: "red",
-      img: User1,
-    },
-    {
-      name: "فاطمة علي",
-      date: "2025-11-2",
-      note: "طلب تجديد اشتراك",
-      color: "#2084DB",
-      img: User1,
-    },
-    {
-      name: "خالد محمد",
-      date: "2025-11-2",
-      note: "مشكلة في الدفع",
-      color: "red",
-      img: User1,
-    },
-  ];
+	const notes = [
+		{
+			name: "أحمد محمد",
+			date: "2025-11-2",
+			note: "يتأخر دائماً",
+			color: "red",
+			img: User1,
+		},
+		{
+			name: "فاطمة علي",
+			date: "2025-11-2",
+			note: "طلب تجديد اشتراك",
+			color: "#2084DB",
+			img: User1,
+		},
+		{
+			name: "خالد محمد",
+			date: "2025-11-2",
+			note: "مشكلة في الدفع",
+			color: "red",
+			img: User1,
+		},
+	];
 
 	const borderColors = {
 		red: "border-red-300",
