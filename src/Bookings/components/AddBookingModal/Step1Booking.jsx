@@ -19,70 +19,68 @@ export default function Step1Booking({
   setErrors,
   isIndividual = false,
   isCoach = false,
+  isPastReadonly = false,
 }) {
   // ====== حالات محلية ======
   const [coaches, setCoaches] = useState([]);
   const [membersList, setMembersList] = useState([]); // ✅ اللستة المحلية الصحيحة للمشتركين
   const [rooms] = useState(["قاعة 1", "قاعة 2", "قاعة 3"]);
 
-  const isReadOnly = !!isIndividual; // حقول مقفلة بصريًا عند تعديل فردي
+  // الحقول تكون ريد أونلي فقط إذا التاريخ ماضي
+  const isReadOnly = !!isPastReadonly;
 
-  
   // ====== جلب المدربين (فوري من الكاش، ثم تحديث بالخلفية) ======
-useEffect(() => {
-  // لو لسه ما عرفنا الدور → ما نعمل ولا اشي
-  if (isCoach === null) return;
+  useEffect(() => {
+    // لو لسه ما عرفنا الدور → ما نعمل ولا اشي
+    if (isCoach === null) return;
 
-  // لو المستخدم الحالي مدرب → ما في داعي نجيب قائمة المدربين
-  if (isCoach) {
-    setCoaches([]);
-    return;
-  }
-
-  const loadCoachesInstantly = async () => {
-    try {
-      // من الـ localStorage لإظهار فوري
-      const local = JSON.parse(localStorage.getItem("allEmployees") || "[]");
-      if (Array.isArray(local) && local.length > 0) {
-        const formattedLocal = local.map((c) => ({
-          id: c._id || c.id,
-          name:
-            c.name ||
-            `${c.firstName || ""} ${c.lastName || ""}`.trim() ||
-            "مدرب غير معروف",
-        }));
-        setCoaches(formattedLocal);
-      }
-
-      // تحديث من السيرفر بالخلفية
-      const remote = await getAllCoachesAPI();
-      if (Array.isArray(remote) && remote.length > 0) {
-        const formattedRemote = remote.map((c) => ({
-          id: c._id || c.id,
-          name:
-            c.name ||
-            `${c.firstName || ""} ${c.lastName || ""}`.trim() ||
-            "مدرب غير معروف",
-        }));
-        setCoaches(formattedRemote);
-        localStorage.setItem("allEmployees", JSON.stringify(remote));
-      }
-    } catch (err) {
-      console.error("[Step1Booking] فشل جلب المدربين:", err);
+    // لو المستخدم الحالي مدرب → ما في داعي نجيب قائمة المدربين
+    if (isCoach) {
+      setCoaches([]);
+      return;
     }
-  };
 
-  loadCoachesInstantly();
-}, [isCoach]);
+    const loadCoachesInstantly = async () => {
+      try {
+        // من الـ localStorage لإظهار فوري
+        const local = JSON.parse(localStorage.getItem("allEmployees") || "[]");
+        if (Array.isArray(local) && local.length > 0) {
+          const formattedLocal = local.map((c) => ({
+            id: c._id || c.id,
+            name:
+              c.name ||
+              `${c.firstName || ""} ${c.lastName || ""}`.trim() ||
+              "مدرب غير معروف",
+          }));
+          setCoaches(formattedLocal);
+        }
+
+        // تحديث من السيرفر بالخلفية
+        const remote = await getAllCoachesAPI();
+        if (Array.isArray(remote) && remote.length > 0) {
+          const formattedRemote = remote.map((c) => ({
+            id: c._id || c.id,
+            name:
+              c.name ||
+              `${c.firstName || ""} ${c.lastName || ""}`.trim() ||
+              "مدرب غير معروف",
+          }));
+          setCoaches(formattedRemote);
+          localStorage.setItem("allEmployees", JSON.stringify(remote));
+        }
+      } catch (err) {
+        console.error("[Step1Booking] فشل جلب المدربين:", err);
+      }
+    };
+
+    loadCoachesInstantly();
+  }, [isCoach]);
 
   // ====== جلب المشتركين (صفحة أولى فورًا + باقي الصفحات بالخلفية) ======
   useEffect(() => {
     const fetchMembersSmart = async () => {
       try {
-        const token =
-          localStorage.getItem("authToken") ||
-          localStorage.getItem("token") ||
-          "";
+        const token = localStorage.getItem("token") || "";
         const headers = {
           Authorization: token.startsWith("Bearer") ? token : `Bearer ${token}`,
         };
@@ -108,7 +106,9 @@ useEffect(() => {
 
         while (hasMore) {
           const res = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL2}/auth/getAllMembers?page=${page}`,
+            `${
+              import.meta.env.VITE_API_BASE_URL2
+            }/auth/getAllMembers?page=${page}`,
             { headers }
           );
           const list = res.data?.members || res.data?.data || [];
@@ -127,7 +127,7 @@ useEffect(() => {
           }
         }
 
-        // ✅ خزّنها محليًا — ونمررها لـ ParticipantsSelector
+        // خزّنها محليًا — ونمررها لـ ParticipantsSelector
         setMembersList(all);
       } catch (err) {
         console.error(" فشل جلب المشتركين:", err);
@@ -167,246 +167,263 @@ useEffect(() => {
   }, [membersList, formData?.members?.length]); // :contentReference[oaicite:5]{index=5}
 
   // ====== Handlers ======
-  
 
   // ====== UI (نفس الشكل بالضبط) ======
   // نحدد إذا في أخطاء ظاهرة عشان نفعّل السكرول بس وقتها
   const hasErrors = errors && Object.values(errors).some(Boolean);
 
   const handleTitleChange = (e) => {
-  if (isIndividual) return;
+    if (isReadOnly) return;
 
-  const value = e.target.value;
-  const trimmed = value.trim();
+    const value = e.target.value;
+    const trimmed = value.trim();
 
-  // نحدّث البيانات
-  setFormData((prev) => ({
-    ...prev,
-    title: value,
-    service: value, // عشان لسه الباك إند متوقع service
-  }));
+    // نحدّث البيانات
+    setFormData((prev) => ({
+      ...prev,
+      title: value,
+      service: value, // عشان لسه الباك إند متوقع service
+    }));
 
-  // نحدّث الأخطاء
-  let error = null;
+    // نحدّث الأخطاء
+    let error = null;
 
-  if (!trimmed) {
-    error = "اسم الحصة مطلوب";
-  } else if (trimmed.length < 3) {
-    error = "اسم الحصة يجب أن يحتوي على 3 أحرف على الأقل";
-  } else if (trimmed.length > 50) {
-    error = "اسم الحصة يجب ألا يزيد عن 50 حرفًا";
-  }
+    if (!trimmed) {
+      error = "اسم الحصة مطلوب";
+    } else if (trimmed.length < 3) {
+      error = "اسم الحصة يجب أن يحتوي على 3 أحرف على الأقل";
+    } else if (trimmed.length > 50) {
+      error = "اسم الحصة يجب ألا يزيد عن 50 حرفًا";
+    }
 
-  setErrors((prev) => ({
-    ...prev,
-    title: error,
-  }));
-};
+    setErrors((prev) => ({
+      ...prev,
+      title: error,
+    }));
+  };
 
   return (
     <div className="flex justify-center bg-white w-full text-black text-[14px]">
       {/* 🟣 سكرول حول الفورم بس لما يكون في أخطاء عشان زر "التالي" يضل مبين */}
       <div
-  className={
-    "w-[343px]" +
-    (hasErrors
-      ? " max-h-[500px] overflow-y-auto overflow-x-hidden custom-scrollbar pl-[2px]"
-      : "")
-  }
->
-  <form className="w-full flex flex-col gap-3 font-[Cairo]">
+        className={
+          "w-[343px]" +
+          (hasErrors
+            ? " max-h-[500px] overflow-y-auto overflow-x-hidden custom-scrollbar pl-[2px]"
+            : "")
+        }
+      >
+        <form className="w-full flex flex-col gap-3 font-[Cairo]">
+          {/* اسم الحصة */}
+          <div className="relative">
+            <label className="block font-bold text-sm mb-1">
+              اسم الحصة <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="أدخل اسم الحصة"
+              value={formData.title || ""}
+              onChange={handleTitleChange}
+              readOnly={isReadOnly}
+              disabled={isReadOnly}
+              className={`w-full h-10 rounded-[8px] border px-3 py-2 focus:outline-none placeholder-gray-400 ${
+                errors?.title ? "border-red-500" : "border-gray-300"
+              } ${
+                isReadOnly || isIndividual
+                  ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                  : "bg-white"
+              }`}
+            />
+            {errors?.title && (
+              <p className="text-red-500 text-xs mt-1">{errors.title}</p>
+            )}
+          </div>
 
-        {/* اسم الحصة */}
-<div className="relative">
-  <label className="block font-bold text-sm mb-1">
-    اسم الحصة <span className="text-red-500">*</span>
-  </label>
-  <input
-    type="text"
-    placeholder="أدخل اسم الحصة"
-    value={formData.title || ""}
-    onChange={handleTitleChange}
-    readOnly={isIndividual}
-    disabled={isIndividual}
-    className={`w-full h-10 rounded-[8px] border px-3 py-2 focus:outline-none placeholder-gray-400 ${
-      errors?.title ? "border-red-500" : "border-gray-300"
-    } ${isIndividual ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white"}`}
-  />
-  {errors?.title && (
-    <p className="text-red-500 text-xs mt-1">{errors.title}</p>
-  )}
-</div>
+          {/* الوصف */}
+          <div>
+            <label className="block font-bold text-sm mb-1">
+              الوصف <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              placeholder="أدخل الوصف"
+              value={formData.description || ""}
+              onChange={(e) => {
+                if (isIndividual) return;
+                const el = e.target;
+                el.style.height = "40px";
+                el.style.height = Math.min(el.scrollHeight, 100) + "px";
 
+                let value = el.value;
 
-        {/* الوصف */}
-        <div>
-          <label className="block font-bold text-sm mb-1">
-            الوصف <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            placeholder="أدخل الوصف"
-            value={formData.description || ""}
-            onChange={(e) => {
-  if (isIndividual) return;
-  const el = e.target;
-  el.style.height = "40px";
-  el.style.height = Math.min(el.scrollHeight, 100) + "px";
+                // ✅ أولاً: لو تجاوز 250 - نقصّه ونظهر رسالة الحدّ الأقصى ونرجع
+                if (value.length > 250) {
+                  value = value.slice(0, 250);
+                  setFormData({ ...formData, description: value });
+                  setErrors((prev) => ({
+                    ...prev,
+                    description: "الوصف لا يمكن أن يتجاوز 250 حرفًا",
+                  }));
+                  return; // مهم علشان ما ينمسح الخطأ بالشروط اللي تحت
+                }
 
-  let value = el.value;
+                // باقي الحالات الطبيعية
+                setFormData({ ...formData, description: value });
 
-  // ✅ أولاً: لو تجاوز 250 - نقصّه ونظهر رسالة الحدّ الأقصى ونرجع
-  if (value.length > 250) {
-    value = value.slice(0, 250);
-    setFormData({ ...formData, description: value });
-    setErrors((prev) => ({
-      ...prev,
-      description: "الوصف لا يمكن أن يتجاوز 250 حرفًا",
-    }));
-    return; // مهم علشان ما ينمسح الخطأ بالشروط اللي تحت
-  }
-
-  // باقي الحالات الطبيعية
-  setFormData({ ...formData, description: value });
-
-  if (value.trim().length === 0) {
-    setErrors((prev) => ({ ...prev, description: "الوصف مطلوب" }));
-  } else if (value.trim().length < 10) {
-    setErrors((prev) => ({
-      ...prev,
-      description: "الوصف يجب أن يحتوي على 10 أحرف على الأقل",
-    }));
-  } else {
-    // طول من 10 إلى 250 → لا خطأ
-    setErrors((prev) => ({ ...prev, description: null }));
-  }
-}}
-
-
-            readOnly={isIndividual}
-            disabled={isIndividual}
-            rows={1}
-            className={`w-full border rounded-md px-3 py-[8px] focus:outline-none placeholder-gray-400 ${
-              errors?.description ? "border-red-500" : "border-gray-300"
-            } ${isReadOnly ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white"}`}
-            style={{
-              lineHeight: "1.5",
-              resize: "none",
-              overflowY: "auto",
-              minHeight: "40px",
-              maxHeight: "60px",
-            }}
-          />
-          {/* عداد لحروف الوصف
+                if (value.trim().length === 0) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    description: "الوصف مطلوب",
+                  }));
+                } else if (value.trim().length < 10) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    description: "الوصف يجب أن يحتوي على 10 أحرف على الأقل",
+                  }));
+                } else {
+                  // طول من 10 إلى 250 → لا خطأ
+                  setErrors((prev) => ({ ...prev, description: null }));
+                }
+              }}
+              readOnly={isIndividual}
+              disabled={isIndividual}
+              rows={1}
+              className={`w-full border rounded-md px-3 py-[8px] focus:outline-none placeholder-gray-400 ${
+                errors?.description ? "border-red-500" : "border-gray-300"
+              } ${
+                isReadOnly || isIndividual
+                  ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                  : "bg-white"
+              }`}
+              style={{
+                lineHeight: "1.5",
+                resize: "none",
+                overflowY: "auto",
+                minHeight: "40px",
+                maxHeight: "60px",
+              }}
+            />
+            {/* عداد لحروف الوصف
           <div className="flex justify-end">
   <span className="text-xs text-gray-500">
     {(formData.description?.length || 0)}/250
   </span>
 </div>
 */}
-          {errors?.description && (
-            <p className="text-red-500 text-xs mt-1 -mt-1">{errors.description}</p>
+            {errors?.description && (
+              <p className="text-red-500 text-xs mt-1 -mt-1">
+                {errors.description}
+              </p>
+            )}
+          </div>
+
+          {/* المدرب */}
+          {isCoach === false && (
+            <>
+              <div>
+                <CoachSelector
+                  selectedCoach={formData.coach}
+                  setSelectedCoach={(coach) => {
+                    if (isReadOnly) return;
+                    setFormData({ ...formData, coachId: coach.id, coach });
+                    if (errors?.coachId) {
+                      setErrors((prev) => ({ ...prev, coachId: null }));
+                    }
+                  }}
+                  coachesList={coaches}
+                  placeholderColor="text-gray-400"
+                  borderStyle={errors?.coachId ? "red" : "#D1D5DB"}
+                  disabled={isReadOnly}
+                />
+              </div>
+              {errors?.coachId && (
+                <p className="text-red-500 text-xs mt-1 -mt-1">
+                  {errors.coachId}
+                </p>
+              )}
+            </>
           )}
-        </div>
 
-        {/* المدرب */}
-{isCoach === false && (
-  <>
-    <div>
-      <CoachSelector
-        selectedCoach={formData.coach}
-        setSelectedCoach={(coach) => {
-          setFormData({ ...formData, coachId: coach.id, coach });
-          if (errors?.coachId) {
-            setErrors((prev) => ({ ...prev, coachId: null }));
-          }
-        }}
-        coachesList={coaches}
-        placeholderColor="text-gray-400"
-        borderStyle={errors?.coachId ? "red" : "#D1D5DB"}
-      />
-    </div>
-    {errors?.coachId && (
-      <p className="text-red-500 text-xs mt-1 -mt-1">{errors.coachId}</p>
-    )}
-  </>
-)}
-
-
-
-        {/* القاعة */}
-        <div>
-          <LocationSelector
-            selectedLocation={formData.room}
-            setSelectedLocation={(loc) => {
-              setFormData((prev) => ({
-                ...prev,
-                room: loc,
-                location: loc,
-              }));
-              if (errors?.room) setErrors((prev) => ({ ...prev, room: null }));
-            }}
-            locationsList={rooms}
-            placeholderColor="text-gray-400"
-            borderColor={errors?.room ? "red" : "#D1D5DB"}
-            showIcon={false}
-          />
-        </div>
-        {errors?.room && (
-          <p className="text-red-500 text-xs mt-1">{errors.room}</p>
-        )}
-
-        {/* عدد المشتركين */}
-<div>
-  <MaxParticipantsSelector
-    selectedMax={formData.maxMembers}
-    setSelectedMax={(value) => {
-      setFormData((prev) => ({
-        ...prev,
-        maxMembers: Number(value),
-      }));
-      if (errors?.maxMembers) {
-        setErrors((prev) => ({ ...prev, maxMembers: null }));
-      }
-    }}
-    options={[
-      { label: "1 مشترك", value: 1 },
-      { label: "5 مشتركين", value: 5 },
-      { label: "10 مشتركين", value: 10 },
-      { label: "20 مشتركاً", value: 20 },
-      { label: "غير محدود", value: Infinity },
-      { label: "إدخال مخصص", value: "custom" },
-    ]}
-    borderColor={errors?.maxMembers ? "red" : "#D1D5DB"}
-  />
-
-  {errors?.maxMembers && (
-    <p className="text-red-500 text-xs mt-1">{errors.maxMembers}</p>
-  )}
-</div>
-
-        {/* المشتركين */}
-        <div className="h-[66px] w-full flex flex-col justify-between">
-          <label className="text-[12px] font-bold leading-[18px]">المشتركين</label>
-          <div className="relative w-full">
-            <ParticipantsSelector
-              variant="booking"
-              showLabel={false}
+          {/* القاعة */}
+          <div>
+            <LocationSelector
+              selectedLocation={formData.room}
+              setSelectedLocation={(loc) => {
+                if (isReadOnly) return;
+                setFormData((prev) => ({
+                  ...prev,
+                  room: loc,
+                  location: loc,
+                }));
+                if (errors?.room)
+                  setErrors((prev) => ({ ...prev, room: null }));
+              }}
+              locationsList={rooms}
+              placeholderColor="text-gray-400"
+              borderColor={errors?.room ? "red" : "#D1D5DB"}
               showIcon={false}
-              booking={formData}
-              setBooking={setFormData}
-              membersList={membersList} // ✅ هون التعديل المهم
+              disabled={isReadOnly}
             />
           </div>
-        </div>
+          {errors?.room && (
+            <p className="text-red-500 text-xs mt-1">{errors.room}</p>
+          )}
 
+          {/* عدد المشتركين */}
+          <div>
+            <MaxParticipantsSelector
+              selectedMax={formData.maxMembers}
+              setSelectedMax={(value) => {
+                if (isReadOnly) return;
+                setFormData((prev) => ({
+                  ...prev,
+                  maxMembers: Number(value),
+                }));
+                if (errors?.maxMembers) {
+                  setErrors((prev) => ({ ...prev, maxMembers: null }));
+                }
+              }}
+              options={[
+                { label: "1 مشترك", value: 1 },
+                { label: "5 مشتركين", value: 5 },
+                { label: "10 مشتركين", value: 10 },
+                { label: "20 مشتركاً", value: 20 },
+                { label: "غير محدود", value: Infinity },
+                { label: "إدخال مخصص", value: "custom" },
+              ]}
+              borderColor={errors?.maxMembers ? "red" : "#D1D5DB"}
+              disabled={isReadOnly}
+            />
 
-      </form>
+            {errors?.maxMembers && (
+              <p className="text-red-500 text-xs mt-1">{errors.maxMembers}</p>
+            )}
+          </div>
+
+          {/* المشتركين */}
+          <div className="h-[66px] w-full flex flex-col justify-between">
+            <label className="text-[12px] font-bold leading-[18px]">
+              المشتركين
+            </label>
+            <div className="relative w-full">
+              <ParticipantsSelector
+                variant="booking"
+                showLabel={false}
+                showIcon={false}
+                booking={formData}
+                setBooking={setFormData}
+                membersList={membersList}
+                readOnly={isReadOnly}
+              />
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   );
 }
 
-{/*
+{
+  /*
   اسم الحصة السابق خيارات، وبحث وإضافة
   <div className="relative dropdown-step1">
           <label className="block font-bold text-sm mb-1">
@@ -508,4 +525,5 @@ useEffect(() => {
           )}
         </div>
   
-*/}
+*/
+}

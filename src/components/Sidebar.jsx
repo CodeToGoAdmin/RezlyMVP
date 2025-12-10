@@ -15,6 +15,8 @@ export default function Sidebar({
   setActiveSubTab,
 }) {
   const role = (user?.role || "").toLowerCase();
+  const isSuperAdmin = role === "superadmin";
+
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,7 +57,7 @@ export default function Sidebar({
   ];
 
   // Only Admin sees employees tab
-  if (role === "admin") {
+  if (role === "admin" || isSuperAdmin) {
     menu.push({
       to: "/dashboard/employees",
       label: "طاقم العمل",
@@ -64,7 +66,7 @@ export default function Sidebar({
     });
   }
 
-  if (role === "admin" || role === "receptionist") {
+  if (role === "admin" || role === "receptionist" || isSuperAdmin) {
     menu.push({
       to: "/dashboard/finance",
       label: "المالية",
@@ -192,7 +194,6 @@ export default function Sidebar({
         <button
           onClick={() => {
             localStorage.removeItem("token");
-            localStorage.removeItem("authToken");
             localStorage.removeItem("role");
             localStorage.removeItem("currentUser");
 
@@ -202,11 +203,11 @@ export default function Sidebar({
             navigate("/");
             onClose && onClose();
           }}
-          className="flex items-center gap-2 text-[14px] text-[#7E818C] hover:text-black transition-colors duration-200 w-full"
+          className="flex items-center gap-2 text-[14px] text-[#7E818C] hover:text-black font-[700] transition-colors duration-200 w-full cursor-pointer"
         >
           <svg
-            width="24"
-            height="24"
+            width="32"
+            height="32"
             viewBox="0 0 26 26"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"

@@ -20,6 +20,9 @@ export default function EmployeesHeader({
   handleAddEmployeeClick,
   activeIconIndex,
   setActiveIconIndex,
+  onApplyFilters,
+  filterData,
+  setFilterData,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,7 +45,7 @@ const [showFilter, setShowFilter] = useState(false);
           <button
             key={tab.name}
             onClick={() => handleTabClick(tab)} // ← التنقل للرابط الجديد
-            className={`relative text-[12px] font-semibold font-Cairo pb-[3px] transition-colors duration-200 ${
+            className={`relative text-[12px] font-semibold font-Cairo pb-[3px] transition-colors duration-200 cursor-pointer ${
               activeTab === tab.name || currentPath === tab.path
                 ? "text-[var(--color-purple)]"
                 : "text-[#7E818C]"
@@ -63,7 +66,7 @@ const [showFilter, setShowFilter] = useState(false);
           {activeTab === "الموظفين" && (
             <button
               onClick={handleAddEmployeeClick}
-              className="flex items-center justify-center gap-[8px] bg-[var(--color-purple)] text-white h-[36px] px-3 rounded-lg text-sm font-semibold font-Cairo transition"
+              className="flex items-center justify-center gap-[8px] bg-[var(--color-purple)] text-white h-[36px] px-3 rounded-lg text-sm font-semibold font-Cairo transition cursor-pointer"
             >
               <MembersIcon className="w-4 h-4" />
               <span>إضافة موظف</span>
@@ -77,7 +80,7 @@ const [showFilter, setShowFilter] = useState(false);
             }
           >
             <button onClick={() => setShowFilter(!showFilter)}>
-            <FilterIcon className="w-5 h-5 text-[var(--color-purple)]" />
+            <FilterIcon className="w-5 h-5 text-[var(--color-purple)] cursor-pointer" />
 </button>
 <div className="relative">
   <button onClick={() => setShowFilter(!showFilter)}>
@@ -85,9 +88,13 @@ const [showFilter, setShowFilter] = useState(false);
   </button>
 
   <EmployeeFilter
-    isOpen={showFilter}
-    onClose={() => setShowFilter(false)}
-  />
+  isOpen={showFilter}
+  onClose={() => setShowFilter(false)}
+  filterData={filterData}
+  setFilterData={setFilterData}
+  onApply={onApplyFilters}
+/>
+
 </div>
 
 
@@ -117,7 +124,7 @@ const [showFilter, setShowFilter] = useState(false);
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path
                   d="M7 11.25C7.9665 11.25 8.75 12.0335 8.75 13V18C8.75 18.9665 7.9665 19.75 7 19.75H2C1.0335 19.75 0.25 18.9665 0.25 18V13C0.25 12.0335 1.0335 11.25 2 11.25H7ZM18 11.25C18.9665 11.25 19.75 12.0335 19.75 13V18C19.75 18.9665 18.9665 19.75 18 19.75H13C12.0335 19.75 11.25 18.9665 11.25 18V13C11.25 12.0335 12.0335 11.25 13 11.25H18ZM7 0.25C7.9665 0.25 8.75 1.0335 8.75 2V7C8.75 7.9665 7.9665 8.75 7 8.75H2C1.0335 8.75 0.25 7.9665 0.25 7V2C0.25 1.0335 1.0335 0.25 2 0.25H7ZM18 0.25C18.9665 0.25 19.75 1.0335 19.75 2V7C19.75 7.9665 18.9665 8.75 18 8.75H13C12.0335 8.75 11.25 7.9665 11.25 7V2C11.25 1.0335 12.0335 0.25 13 0.25H18Z"
-                  fill={activeIconIndex === 0 ? "#fff" : "#6A0EAD"}
+                  fill={activeIconIndex === 0 ? "#fff" : "var(--color-purple)"}
                 />
               </svg>
             </div>
@@ -136,7 +143,7 @@ const [showFilter, setShowFilter] = useState(false);
               <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
                 <path
                   d="M19 15.5C19.5523 15.5 20 15.9477 20 16.5C20 17.0523 19.5523 17.5 19 17.5H1C0.447715 17.5 0 17.0523 0 16.5C0 15.9477 0.447715 15.5 1 15.5H19ZM19 10.5C19.5523 10.5 20 10.9477 20 11.5C20 12.0523 19.5523 12.5 19 12.5H1C0.447715 12.5 0 12.0523 0 11.5C0 10.9477 0.447715 10.5 1 10.5H19ZM19 5.5C19.5523 5.5 20 5.94772 20 6.5C20 7.05228 19.5523 7.5 19 7.5H1C0.447715 7.5 0 7.05228 0 6.5C0 5.94772 0.447715 5.5 1 5.5H19ZM19 0.5C19.5523 0.5 20 0.947715 20 1.5C20 2.05228 19.5523 2.5 19 2.5H1C0.447715 2.5 0 2.05228 0 1.5C0 0.947715 0.447715 0.5 1 0.5H19Z"
-                  fill={activeIconIndex === 1 ? "#fff" : "#6A0EAD"}
+                  fill={activeIconIndex === 1 ? "#fff" : "var(--color-purple)"}
                 />
               </svg>
             </div>
@@ -204,7 +211,7 @@ const [showFilter, setShowFilter] = useState(false);
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path
                   d="M7 11.25C7.9665 11.25 8.75 12.0335 8.75 13V18C8.75 18.9665 7.9665 19.75 7 19.75H2C1.0335 19.75 0.25 18.9665 0.25 18V13C0.25 12.0335 1.0335 11.25 2 11.25H7ZM18 11.25C18.9665 11.25 19.75 12.0335 19.75 13V18C19.75 18.9665 18.9665 19.75 18 19.75H13C12.0335 19.75 11.25 18.9665 11.25 18V13C11.25 12.0335 12.0335 11.25 13 11.25H18ZM7 0.25C7.9665 0.25 8.75 1.0335 8.75 2V7C8.75 7.9665 7.9665 8.75 7 8.75H2C1.0335 8.75 0.25 7.9665 0.25 7V2C0.25 1.0335 1.0335 0.25 2 0.25H7ZM18 0.25C18.9665 0.25 19.75 1.0335 19.75 2V7C19.75 7.9665 18.9665 8.75 18 8.75H13C12.0335 8.75 11.25 7.9665 11.25 7V2C11.25 1.0335 12.0335 0.25 13 0.25H18Z"
-                  fill={activeIconIndex === 0 ? "#fff" : "#6A0EAD"}
+                  fill={activeIconIndex === 0 ? "#fff" : "var(--color-purple)"}
                 />
               </svg>
             </div>
@@ -223,7 +230,7 @@ const [showFilter, setShowFilter] = useState(false);
               <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
                 <path
                   d="M19 15.5C19.5523 15.5 20 15.9477 20 16.5C20 17.0523 19.5523 17.5 19 17.5H1C0.447715 17.5 0 17.0523 0 16.5C0 15.9477 0.447715 15.5 1 15.5H19ZM19 10.5C19.5523 10.5 20 10.9477 20 11.5C20 12.0523 19.5523 12.5 19 12.5H1C0.447715 12.5 0 12.0523 0 11.5C0 10.9477 0.447715 10.5 1 10.5H19ZM19 5.5C19.5523 5.5 20 5.94772 20 6.5C20 7.05228 19.5523 7.5 19 7.5H1C0.447715 7.5 0 7.05228 0 6.5C0 5.94772 0.447715 5.5 1 5.5H19ZM19 0.5C19.5523 0.5 20 0.947715 20 1.5C20 2.05228 19.5523 2.5 19 2.5H1C0.447715 2.5 0 2.05228 0 1.5C0 0.947715 0.447715 0.5 1 0.5H19Z"
-                  fill={activeIconIndex === 1 ? "#fff" : "#6A0EAD"}
+                  fill={activeIconIndex === 1 ? "#fff" : "var(--color-purple)"}
                 />
               </svg>
             </div>

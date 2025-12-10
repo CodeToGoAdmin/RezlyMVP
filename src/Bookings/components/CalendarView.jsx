@@ -162,8 +162,6 @@ export default function CalendarView() {
   });
 
   // ---- دوال التحكم ----
-  
-
 
   // حفظ تعديل الحجز (يستدعى من EventModal عبر prop)
   const handleSaveBooking = async (updatedBooking) => {
@@ -208,11 +206,9 @@ export default function CalendarView() {
   const handleDeleteBooking = async (bookingToDelete) => {
     try {
       const token =
-        localStorage.getItem("authToken") ||
         (localStorage.getItem("token")
           ? `Bearer ${localStorage.getItem("token")}`
-          : `Bearer ${import.meta.env.VITE_API_TOKEN}`) ||
-        "";
+          : `Bearer ${import.meta.env.VITE_API_TOKEN}`) || "";
 
       const scheduleId = bookingToDelete?.selectedScheduleId;
       const bookingId = bookingToDelete?._id;
@@ -309,7 +305,6 @@ export default function CalendarView() {
     setCurrentDate(api.getDate());
   };
 
-
   return (
     <>
       <div
@@ -318,7 +313,7 @@ export default function CalendarView() {
         }`}
       >
         <div
-          className={`bg-white rounded-[16px] overflow-hidden flex-1 flex flex-col ${
+          className={`bg-white rounded-[16px] overflow-hidden flex-1 flex flex-col h-full ${
             view === "timeGridWeek" ? "" : "hide-fc-header"
           }`}
           dir="rtl"
@@ -326,13 +321,14 @@ export default function CalendarView() {
           {/* الهيدر */}
           <div className="grid grid-cols-[50px_1fr]">
             <div className="border-l border-[#eee] w-[46px] pt-[12px]"></div>
-            <div className="flex justify-between items-center px-[12px] pb-[12px] pt-[12px]">
-              <div className="flex items-center gap-[12px]">
+            <div className="flex justify-between items-center px-[12px] pb-[12px] pt-[12px] gap-[8px]">
+              <div className="flex items-center gap-[6px]">
                 {/* التاريخ وmini calendar */}
                 <div className="relative">
                   <button
                     onClick={() => setShowDatePicker(!showDatePicker)}
-                    className="h-[32px] w-auto px-2 flex items-center gap-2 rounded-[8px] font-semibold bg-[#F8F9FA] border-0 outline-none"
+                    className="h-[32px] w-auto px-2 flex items-center gap-1 rounded-[8px] font-semibold bg-[#F8F9FA] border-0 outline-none whitespace-nowrap"
+
                   >
                     <CalenderIcon className="w-5 h-5 text-[var(--color-purple)]" />
                     <span className="font-cairo text-[14px] font-bold text-black truncate">
@@ -355,7 +351,7 @@ export default function CalendarView() {
                   )}
                 </div>
 
-                                {/* أزرار التنقّل + اختيار نوع العرض */}
+                {/* أزرار التنقّل + اختيار نوع العرض */}
                 <div className="flex items-center gap-[8px]">
                   {/* زر السهم اليسار → اليوم/الأسبوع/الشهر السابق */}
                   <button
@@ -369,16 +365,28 @@ export default function CalendarView() {
                   <div className="relative">
                     <button
                       onClick={() => setShowViewMenu(!showViewMenu)}
-                      className="bg-[#F8F9FA] min-w-[100px] h-[32px] px-[8px] rounded-[8px] font-semibold flex items-center justify-center gap-x-[6px]"
+                      className="bg-[#F8F9FA] w-[32px] h-[32px] rounded-[8px] flex items-center justify-center sm:min-w-[100px] sm:px-[8px]"
                     >
-                      <span className="font-cairo text-[14px] font-[700] text-black">
+                      {/* موبايل: أيقونة ثلاث خطوط صغيرة */}
+                      <span className="block sm:hidden text-[18px] font-bold text-[var(--color-purple)]">
+                        ⋮
+                      </span>
+
+                      {/* شاشات كبيرة: النص العادي */}
+                      <span className="hidden sm:flex font-cairo text-[14px] font-[700] text-black">
                         {view === "timeGridDay"
                           ? "اليوم"
                           : view === "timeGridWeek"
                           ? "أسبوع"
                           : "شهر"}
                       </span>
-                      <img src={DownArrowIcon} alt="اختر العرض" />
+
+                      {/* السهم */}
+                      <img
+                        src={DownArrowIcon}
+                        alt="اختر العرض"
+                        className="hidden sm:block"
+                      />
                     </button>
 
                     {showViewMenu && (
@@ -413,36 +421,34 @@ export default function CalendarView() {
                     <img src={LeftArrowIcon} alt="التالي" />
                   </button>
                 </div>
-
               </div>
 
               {/* زر تكبير الشاشة */}
               <div>
                 <ReSizeIcon
-  className="cursor-pointer w-8 h-8 text-[var(--color-purple)]"
-  onClick={() => {
-    const api = calendarRef.current?.getApi();
+                  className="cursor-pointer w-8 h-8 text-[var(--color-purple)]"
+                  onClick={() => {
+                    const api = calendarRef.current?.getApi();
 
-    // 🟣 نحفظ التاريخ الحالي من الكاليندر نفسه
-    const current = api?.getDate();
-    if (current) {
-      setCurrentDate(current);
-    }
+                    // 🟣 نحفظ التاريخ الحالي من الكاليندر نفسه
+                    const current = api?.getDate();
+                    if (current) {
+                      setCurrentDate(current);
+                    }
 
-    // نبدّل وضع الفل سكرين فقط
-    setFullScreenMode((prev) => !prev);
+                    // نبدّل وضع الفل سكرين فقط
+                    setFullScreenMode((prev) => !prev);
 
-    // بعد ما يعيد رندر، نرجّعه على نفس التاريخ ونحدّث الحجم
-    setTimeout(() => {
-      const apiAfter = calendarRef.current?.getApi();
-      if (apiAfter && current) {
-        apiAfter.gotoDate(current);
-        apiAfter.updateSize();
-      }
-    }, 0);
-  }}
-/>
-
+                    // بعد ما يعيد رندر، نرجّعه على نفس التاريخ ونحدّث الحجم
+                    setTimeout(() => {
+                      const apiAfter = calendarRef.current?.getApi();
+                      if (apiAfter && current) {
+                        apiAfter.gotoDate(current);
+                        apiAfter.updateSize();
+                      }
+                    }, 0);
+                  }}
+                />
               </div>
             </div>
           </div>
@@ -462,13 +468,13 @@ export default function CalendarView() {
             slotDuration="00:30:00"
             events={events}
             dayMaxEvents={view === "dayGridMonth" ? 3 : false}
-  eventMaxStack={
-    view === "timeGridDay"
-      ? fullScreenMode
-        ? 6   // 👈 في عرض اليوم + فل سكرين → 6
-        : 4   // 👈 في عرض اليوم العادي → 4
-      : 4     // باقي العروض نخليها 4 زي ما هي
-  }
+            eventMaxStack={
+              view === "timeGridDay"
+                ? fullScreenMode
+                  ? 6 // 👈 في عرض اليوم + فل سكرين → 6
+                  : 4 // 👈 في عرض اليوم العادي → 4
+                : 4 // باقي العروض نخليها 4 زي ما هي
+            }
             eventClick={(info) => {
               const scheduleId = info.event.id;
               const foundBooking = bookings.find((b) =>

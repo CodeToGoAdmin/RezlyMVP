@@ -9,6 +9,8 @@ import CalenderIcon from "../../../icons/calender.svg?react";
 import { useBookings } from "../../BookingsContext.jsx";
 import { formatBookingData } from "../helpers/formatBookingData";
 import { step1Schema, step2Schema } from "../helpers/bookingValidation";
+import { getApiErrorMessage } from "../../../components/getApiErrorMessage.jsx";
+
 import {
   createBookingAPI,
   updateGeneralBookingAPI,
@@ -76,6 +78,9 @@ export default function AddBookingModal({
   const [scheduleOptions, setScheduleOptions] = useState([]);
   const [showCalendar, setShowCalendar] = useState(false);
 
+  const [isPastReadonly, setIsPastReadonly] = useState(false);
+  const [isAllPastBooking, setIsAllPastBooking] = useState(false);
+
   const steps = ["معلومات الحجز", "موعد الحجز"];
 
   const [fullBookingData, setFullBookingData] = useState(null);
@@ -133,14 +138,40 @@ export default function AddBookingModal({
     }
   }, [isEditing, formData.schedules]);
 
+  // لو كل الأيام في هذا الحجز ماضية → نخلي الحجز بالكامل Readonly في تعديل الكل
+  useEffect(() => {
+    if (
+      !isEditing ||
+      !Array.isArray(scheduleOptions) ||
+      scheduleOptions.length === 0
+    ) {
+      setIsAllPastBooking(false);
+      return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const allPast = scheduleOptions.every((s) => {
+      if (!s?.date) return false;
+      const d = new Date(s.date);
+      d.setHours(0, 0, 0, 0);
+      return d < today;
+    });
+
+    setIsAllPastBooking(allPast);
+
+    // لو إحنا في وضع "تعديل الكل" → فعّل/عطّل الـ readonly حسب allPast
+    if (isGroupEdit) {
+      setIsPastReadonly(allPast);
+    }
+  }, [isEditing, scheduleOptions, isGroupEdit]);
+
   // جلب جميع المشتركين من السيرفر (كل الصفحات)
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const token =
-          localStorage.getItem("authToken") ||
-          localStorage.getItem("token") ||
-          "";
+        const token = localStorage.getItem("token") || "";
         const headers = { Authorization: `Bearer ${token}` };
 
         // أول صفحة
@@ -245,6 +276,7 @@ export default function AddBookingModal({
     setStep1Errors({});
     setStep2Errors({});
     setActiveStep(0);
+    setIsPastReadonly(false);
 
     const currentUser =
       JSON.parse(localStorage.getItem("currentUser") || "null") ||
@@ -282,6 +314,8 @@ export default function AddBookingModal({
     setStep2Errors({});
     setSelectedOption("all");
     setScheduleOptions([]);
+
+    setIsPastReadonly(false);
   };
 
   // تحديث البيانات عند اختيار حجز فردي من القائمة
@@ -326,6 +360,19 @@ export default function AddBookingModal({
     const dateStr = selectedSchedule.date
       ? selectedSchedule.date.split("T")[0]
       : fullBooking.startDate?.split("T")[0] || "";
+
+    //  تحديد إذا اليوم ماضي (مقارنة بالتاريخ الحالي بدون وقت)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDateObj = new Date(dateStr);
+    selectedDateObj.setHours(0, 0, 0, 0);
+
+    const isPast = selectedDateObj < today;
+    setIsPastReadonly(isPast);
+
+    if (isPast) {
+      toast.info("لا يمكن تعديل حجز في تاريخ ماضي، يمكنك فقط العرض.");
+    }
 
     const startTime =
       normalizeArabicTime(selectedSchedule.timeStart) || "09:00";
@@ -928,44 +975,10 @@ export default function AddBookingModal({
 
       // fallback
       setLoading(false);
-    } catch (err) {
-      console.error(" فشل الحفظ:", err.response?.data || err.message);
-
-      //  قراءة رسالة الباك الأساسية
-      let backendMsg =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err?.response?.data?.details?.[0]?.message ||
-        "حدث خطأ غير متوقع أثناء حفظ الحجز";
-
-      //  لو فيه أيام متعارضة، نكوّن رسالة تفصيلية
-      const conflicted = err?.response?.data?.conflictedDays;
-      if (Array.isArray(conflicted) && conflicted.length > 0) {
-        const details = conflicted
-          .map((d) => {
-            const dateStr = new Date(d["التاريخ"]).toLocaleDateString("ar-EG", {
-              weekday: "long",
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            });
-            let reason = d["السبب"];
-            if (reason === "Coach busy") reason = "المدرب مشغول";
-            if (reason === "Room busy") reason = "القاعة محجوزة";
-            return `• ${dateStr} — ${reason}`;
-          })
-          .join("\n");
-        backendMsg += "\n" + details;
-      }
-
-      // 🧾 عرض التوست للمستخدم
-      toast.error(backendMsg, {
-        position: "top-left",
-        autoClose: 5000,
-        className: "custom-toast-error", // لو عندك كلاس خاص بالألوان القديمة
-        style: { whiteSpace: "pre-line" },
-      });
-
+    } catch (error) {
+      const message = getApiErrorMessage(error, "حدث خلل");
+      console.log("API error response:", error?.response?.data);
+      toast.error(<div dangerouslySetInnerHTML={{ __html: message }} />);
       setLoading(false);
     }
   };
@@ -987,6 +1000,7 @@ export default function AddBookingModal({
     const handleOpenEdit = (event) => {
       const booking = event.detail;
       if (!booking) return;
+      setIsPastReadonly(false);
       const formatted = formatBookingData(booking);
       setFullBookingData(booking); // 🟣 نخزّن نسخة كاملة من الحجز الأصلي
       setFormData(formatted);
@@ -1076,6 +1090,11 @@ export default function AddBookingModal({
     ? new Date(baseDateTimeForStep2).toISOString()
     : null;
 
+  const isSaveDisabled =
+  loading ||
+  (isEditing && (isPastReadonly || isAllPastBooking));
+
+
   return (
     <>
       {open && (
@@ -1152,6 +1171,9 @@ export default function AddBookingModal({
                                 setIsGroupEdit(true);
                                 toast.info("تم اختيار تعديل الكل");
                               }
+                              // الحجز إذا كان كامل منتهي بنخليه Readonly، غير هيك بيكون عادي
+                              setIsPastReadonly(isAllPastBooking);
+
                               setDropdownOpen(false);
                               setShowCalendar(false);
                             }}
@@ -1239,7 +1261,7 @@ export default function AddBookingModal({
 
               <button
                 onClick={handleClose}
-                className="w-8 h-8 flex items-center justify-center"
+                className="w-8 h-8 flex items-center justify-center cursor-pointer"
               >
                 <img
                   src={CloseIcon}
@@ -1299,6 +1321,7 @@ export default function AddBookingModal({
                   isIndividual={!!selectedBooking}
                   isCoach={isCoach}
                   members={allMembers}
+                  isPastReadonly={isPastReadonly}
                 />
               ) : (
                 <Step2Booking
@@ -1310,6 +1333,7 @@ export default function AddBookingModal({
                   isIndividual={!!selectedBooking}
                   isEditing={isEditing}
                   baseDateTime={normalizedBaseDateTime}
+                  isPastReadonly={isPastReadonly}
                 />
               )}
 
@@ -1317,7 +1341,7 @@ export default function AddBookingModal({
               <div className="w-[344px] mt-4 self-center flex flex-row gap-2">
                 {activeStep === 0 ? (
                   <button
-                    className="w-full py-3 text-white text-sm font-medium rounded-[8px] bg-[var(--color-purple)]"
+                    className="w-full py-3 text-white text-sm font-medium rounded-[8px] bg-[var(--color-purple)] cursor-pointer"
                     onClick={async () => {
                       try {
                         if (isCoach && coachId && !formData.coachId)
@@ -1346,14 +1370,15 @@ export default function AddBookingModal({
                 ) : (
                   <>
                     <button
-                      className="w-full py-3 text-[var(--color-purple)] text-sm font-medium rounded-[8px] border border-[var(--color-purple)]"
+                      className="w-full py-3 text-[var(--color-purple)] text-sm font-medium rounded-[8px] border border-[var(--color-purple)] cursor-pointer"
                       onClick={() => setActiveStep(0)}
                     >
                       السابق
                     </button>
                     <button
-                      className="w-full py-3 text-white text-sm font-medium rounded-[8px] bg-[var(--color-purple)]"
+                      className="w-full py-3 text-white text-sm font-medium rounded-[8px] bg-[var(--color-purple)] cursor-pointer"
                       onClick={async () => {
+                        if (isSaveDisabled) return;
                         //  تحقق يدوي من Step2 قبل الحفظ
                         const newErrors = {};
 

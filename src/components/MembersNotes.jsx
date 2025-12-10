@@ -1,5 +1,5 @@
 import React from "react";
-import User1 from "../img/user1.svg";
+import User1 from "../img/User1.svg";
 
 export default function MembersNotes() {
   const notes = [
