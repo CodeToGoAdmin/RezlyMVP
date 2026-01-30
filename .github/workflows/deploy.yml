@@ -1,8 +1,8 @@
-name: Deploy React to Hostinger Subdomain: rezly.io
+name: Deploy React to Hostinger Subdomain: staging.rezly.io
 on:
   push:
     branches:
-      - main
+      - staging
 
 jobs:
   build-and-deploy:
