@@ -1,4 +1,4 @@
-name: Deploy React to Hostinger Subdomain: app.rezly.io
+name: Deploy React to Hostinger Subdomain: rezly.io
 on:
   push:
     branches:
