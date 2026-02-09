@@ -1,4 +1,4 @@
-name: Deploy React to Hostinger Subdomain: staging.rezly.io
+name: Deploy React to Cloudflare Subdomain: staging.rezly.io
 on:
   push:
     branches:
@@ -8,20 +8,20 @@ jobs:
   build-and-deploy:
       runs-on: ubuntu-latest
       steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+        - name: Checkout code
+          uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm install
+        - name: Install dependencies
+          run: npm install
 
-      - name: Build project
-        run: npm run build
+        - name: Build project
+          run: npm run build
 
-      - name: Sync files to Hostinger
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist
-          server-dir: /public_html
+        - name: Sync files to Cloudflare
+          uses: cloudflare/pages-action@v1
+          with:
+            apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+            accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+            projectName: "rezly.io"
+            directory: "build"
+            gitHubToken: ${{ secrets.GITHUB_TOKEN }}
